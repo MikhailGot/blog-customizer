@@ -7,23 +7,25 @@ import { Select } from 'src/ui/select';
 import { ArticleStateType, backgroundColors, contentWidthArr, defaultArticleState, fontColors, fontFamilyOptions, fontSizeOptions } from 'src/constants/articleProps';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Separator } from 'src/ui/separator';
+import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
+import { useEnterSubmit } from 'src/ui/select/hooks/useEnterSubmit';
 
 type ArticleParamsFormProps = {
 	onChange: (state: ArticleStateType) => void;
 }
 export const ArticleParamsForm = ({onChange}:ArticleParamsFormProps) => {
 
-	const [isOpen, setOpen] = useState(false);
+	const [isMenuOpen, setMenuOpen] = useState(false);
 	const [currenrFont, setFont] = useState(defaultArticleState.fontFamilyOption);
 	const [currentFontSize, setFontSize] = useState(defaultArticleState.fontSizeOption);
 	const [currentFontColor, setFontColor] = useState(defaultArticleState.fontColor);
 	const [currentBackgroundColor, setBackgroundColor] = useState(defaultArticleState.backgroundColor);
 	const [currentContentWidth, setContentWidth] = useState(defaultArticleState.contentWidth)
-	const container = useRef<HTMLElement|null>(null);
+	const container = useRef<HTMLDivElement|null>(null);
 
 	useLayoutEffect(()=>{
 		if(container.current){
-			if(isOpen){
+			if(isMenuOpen){
 				container.current.classList.add(styles.container_open);
 			} else {
 				container.current.classList.remove(styles.container_open);
@@ -31,7 +33,7 @@ export const ArticleParamsForm = ({onChange}:ArticleParamsFormProps) => {
 		}
 	});
 
-	const submitForm = () => {
+	const submitForm = (event: React.FormEvent) => {
 		const articleState: ArticleStateType = {
 			fontFamilyOption: currenrFont,
 			fontSizeOption: currentFontSize,
@@ -40,8 +42,11 @@ export const ArticleParamsForm = ({onChange}:ArticleParamsFormProps) => {
 			contentWidth: currentContentWidth
 		}
 		onChange(articleState);
+		event.preventDefault();
 
 	}
+
+	
 
 	const resetForm = () => {
 		setFont(defaultArticleState.fontFamilyOption);
@@ -51,11 +56,13 @@ export const ArticleParamsForm = ({onChange}:ArticleParamsFormProps) => {
 		setContentWidth(defaultArticleState.contentWidth);
 	}
 
+	useOutsideClickClose({isOpen:isMenuOpen, rootRef:container, onChange:(value)=>setMenuOpen(value)});
+	useEnterSubmit({placeholderRef:container, onChange:(value)=>setMenuOpen(value)} );
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={() => {setOpen(!isOpen)}} />
+			<ArrowButton isOpen={isMenuOpen} onClick={() => {setMenuOpen(!isMenuOpen)}} />
 			<aside className={styles.container} ref={container}>
-				<form className={styles.form}>
+				<form className={styles.form} onSubmit={submitForm}>
 					<Select title="Шрифт" 
 						options={fontFamilyOptions} 
 						selected={currenrFont} 
@@ -85,7 +92,7 @@ export const ArticleParamsForm = ({onChange}:ArticleParamsFormProps) => {
 					/>
 					<div className={styles.bottomContainer}>
 						<Button title='Сбросить' htmlType='reset' type='clear' onClick={resetForm}/>
-						<Button title='Применить' htmlType='button' type='apply' onClick={submitForm}/>
+						<Button title='Применить' htmlType='submit' type='apply'/>
 					</div>
 				</form>
 			</aside>
