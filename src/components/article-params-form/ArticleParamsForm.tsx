@@ -58,6 +58,7 @@ export const ArticleParamsForm = ({onChange}:ArticleParamsFormProps) => {
 
 	useOutsideClickClose({isOpen:isMenuOpen, rootRef:container, onChange:(value)=>setMenuOpen(value)});
 	useEnterSubmit({placeholderRef:container, onChange:(value)=>setMenuOpen(value)} );
+	
 	return (
 		<>
 			<ArrowButton isOpen={isMenuOpen} onClick={() => {setMenuOpen(!isMenuOpen)}} />
